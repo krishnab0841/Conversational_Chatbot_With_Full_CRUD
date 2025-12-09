@@ -97,7 +97,7 @@ function App() {
                 <details>
                     <summary>ℹ️ What can I do?</summary>
                     <div className="info-content">
-                        <p>I'm your intelligent registration assistant powered by Google Gemini and LangGraph! I can help you with:</p>
+                        <p>I'm your intelligent registration assistant powered by Groq and LangGraph! I can help you with:</p>
                         <ul>
                             <li>🆕 <strong>Create</strong> a new registration</li>
                             <li>📖 <strong>Read</strong> your existing registration details</li>
@@ -178,7 +178,7 @@ function App() {
 
             {/* Footer */}
             <div className="footer">
-                <p>Powered by <strong>LangGraph</strong> + <strong>Google Gemini</strong> + <strong>PostgreSQL</strong></p>
+                <p>Powered by <strong>LangGraph</strong> + <strong>Groq</strong> + <strong>PostgreSQL</strong></p>
                 <p>All data is stored securely with full audit logging</p>
             </div>
         </div>

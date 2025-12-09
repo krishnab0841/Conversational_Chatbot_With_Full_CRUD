@@ -159,7 +159,7 @@ if __name__ == "__main__":
     import uvicorn
     
     logger.info("Starting FastAPI server...")
-    logger.info(f"Using model: {settings.gemini_model}")
+    logger.info(f"Using model: {settings.groq_model}")
     
     uvicorn.run(
         app,

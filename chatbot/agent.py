@@ -8,7 +8,7 @@ from typing import Dict, Any, Literal
 from datetime import date
 
 from langgraph.graph import StateGraph, END
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 
 from .state import ConversationState, create_initial_state
@@ -46,10 +46,10 @@ class ChatbotAgent:
         self.repository = UserRepository()
         
         # Initialize LLM
-        self.llm = ChatGoogleGenerativeAI(
-            model=self.settings.gemini_model,
+        self.llm = ChatGroq(
+            model=self.settings.groq_model,
             temperature=self.settings.temperature,
-            google_api_key=self.settings.google_api_key
+            groq_api_key=self.settings.groq_api_key
         )
         
         # Build conversation graph
@@ -130,6 +130,10 @@ class ChatbotAgent:
     
     def classify_intent_node(self, state: ConversationState) -> ConversationState:
         """Classify user intent from the latest message."""
+        # If we are already collecting data, don't re-classify intent!
+        if state.get("collecting_field"):
+            return state
+
         if not state["messages"]:
             return state
         
@@ -157,7 +161,7 @@ class ChatbotAgent:
     
     def _llm_classify_intent(self, message: str) -> str:
         """Use LLM to classify intent when keywords don't match."""
-        prompt = f"""Classify the following user message into one of these intents:
+        system_instruction = """Classify the user message into one of these intents:
 - create: User wants to create a new registration
 - read: User wants to view their registration data
 - update: User wants to update their registration
@@ -165,12 +169,13 @@ class ChatbotAgent:
 - help: User needs help or asks what you can do
 - exit: User wants to end the conversation
 
-User message: "{message}"
-
-Respond with ONLY the intent name (create/read/update/delete/help/exit)."""
+Respond with ONLY the intent name in lowercase."""
 
         try:
-            response = self.llm.invoke([HumanMessage(content=prompt)])
+            response = self.llm.invoke([
+                SystemMessage(content=system_instruction),
+                HumanMessage(content=message)
+            ])
             intent = response.content.strip().lower()
             
             if intent in ["create", "read", "update", "delete", "help", "exit"]:

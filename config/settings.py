@@ -12,9 +12,9 @@ from pydantic import Field
 class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
     
-    # Google Gemini API
-    google_api_key: str = Field(..., alias="GOOGLE_API_KEY")
-    gemini_model: str = Field(default="gemini-2.0-flash-exp", alias="GEMINI_MODEL")
+    # Groq API
+    groq_api_key: str = Field(..., alias="GROQ_API_KEY")
+    groq_model: str = Field(default="llama-3.3-70b-versatile", alias="GROQ_MODEL")
     
     # PostgreSQL Database
     db_host: str = Field(default="localhost", alias="DB_HOST")
@@ -40,8 +40,8 @@ class Settings(BaseSettings):
     def database_url(self) -> str:
         """Generate PostgreSQL connection URL."""
         return f"postgresql://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
-
-
+    
+    
 # Global settings instance
 def get_settings() -> Settings:
     """Get settings instance."""

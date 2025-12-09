@@ -1,12 +1,12 @@
 # 🤖 AI Agent Chatbot
 
-A conversational AI chatbot for CRUD operations on user registration data using natural language. Built with **LangGraph**, **Google Gemini**, **React**, **FastAPI**, and **PostgreSQL**.
+A conversational AI chatbot for CRUD operations on user registration data using natural language. Built with **LangGraph**, **Groq**, **React**, **FastAPI**, and **PostgreSQL**.
 
 ---
 
 ## ✨ Features
 
-- **💬 Natural Language Interface**: Powered by Google Gemini 2.0 Flash
+- **💬 Natural Language Interface**: Powered by Groq (Llama 3.3 70B)
 - **🔄 Full CRUD Operations**: Create, Read, Update, Delete user registrations
 - **🧠 Agentic AI**: LangGraph state machine for intelligent conversation flow
 - **✅ Smart Validation**: Email, phone, date validation with user-friendly error messages
@@ -49,7 +49,7 @@ A conversational AI chatbot for CRUD operations on user registration data using 
 - **Python** 3.10 or higher
 - **Node.js** 18+ and npm
 - **PostgreSQL** 12 or higher
-- **Google Gemini API** key ([Get one here](https://makersuite.google.com/app/apikey))
+- **Groq API** key ([Get one here](https://console.groq.com/keys))
 
 ---
 
@@ -100,8 +100,8 @@ cp .env.example .env    # Linux/Mac
 
 **Edit `.env` with your credentials:**
 ```env
-# Google Gemini API
-GOOGLE_API_KEY=your_google_api_key_here
+# Groq API
+GROQ_API_KEY=gsk_your_groq_api_key_here
 
 # Database Configuration
 DB_NAME=chatbot_db
@@ -111,7 +111,7 @@ DB_HOST=localhost
 DB_PORT=5432
 
 # Application Settings
-GEMINI_MODEL=gemini-2.0-flash-exp
+GROQ_MODEL=llama-3.3-70b-versatile
 LOG_LEVEL=INFO
 ```
 
@@ -394,11 +394,11 @@ python main.py --test-db
 
 ### API Key Errors
 
-**Problem:** `Google API authentication error`
+**Problem:** `Groq API authentication error`
 
 **Solutions:**
-- Verify `GOOGLE_API_KEY` in `.env`
-- Check key is active at [Google AI Studio](https://makersuite.google.com/)
+- Verify `GROQ_API_KEY` in `.env`
+- Check key is active at [Groq Console](https://console.groq.com/keys)
 - Ensure no extra spaces in key
 
 ### Module Import Errors
@@ -436,7 +436,7 @@ python main.py --test-db
 
 - `langgraph` - Agentic AI framework
 - `langchain` - LLM orchestration
-- `langchain-google-genai` - Google Gemini integration
+- `langchain-groq` - Groq integration
 - `fastapi` - Web framework
 - `uvicorn` - ASGI server
 - `psycopg2-binary` - PostgreSQL driver

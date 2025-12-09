@@ -72,7 +72,7 @@ def main():
         print("\n" + "="*60)
         print("🤖 AI Agent Chatbot - FastAPI Backend")
         print("="*60)
-        print(f"\nUsing model: {settings.gemini_model}")
+        print(f"\nUsing model: {settings.groq_model}")
         print("\nStarting backend server on http://localhost:8000")
         print("\nTo use the chatbot:")
         print("  1. Backend: python main.py (this terminal)")
