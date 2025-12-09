@@ -1,31 +1,25 @@
 """
 Main entry point for the AI Agent Chatbot.
-Handles initialization and launches the appropriate interface.
+Simplified to run the FastAPI backend server.
+For the React frontend, run: cd frontend && npm run dev
 """
 
 import sys
-import argparse
 import logging
 
 from config import get_settings
 from utils import setup_logging
 from database import init_database, test_connection
-from ui import launch_web_interface, launch_cli_interface
 
 logger = logging.getLogger(__name__)
 
 
-def parse_args():
-    """Parse command line arguments."""
+def main():
+    """Main application entry point."""
+    import argparse
+    
     parser = argparse.ArgumentParser(
         description="AI Agent Chatbot - Conversational CRUD Operations with PostgreSQL"
-    )
-    
-    parser.add_argument(
-        "--mode",
-        choices=["web", "cli"],
-        default=None,
-        help="Interface mode: web (Gradio) or cli (command-line). Defaults to value in .env"
     )
     
     parser.add_argument(
@@ -41,24 +35,13 @@ def parse_args():
     )
     
     parser.add_argument(
-        "--share",
-        action="store_true",
-        help="Create public share link (Gradio web mode only)"
-    )
-    
-    parser.add_argument(
         "--log-level",
         choices=["DEBUG", "INFO", "WARNING", "ERROR"],
         default=None,
         help="Logging level. Defaults to value in .env"
     )
     
-    return parser.parse_args()
-
-
-def main():
-    """Main application entry point."""
-    args = parse_args()
+    args = parser.parse_args()
     
     try:
         # Load settings
@@ -67,9 +50,6 @@ def main():
         # Setup logging
         log_level = args.log_level or settings.log_level
         setup_logging(log_level)
-        
-        logger.info("Starting AI Agent Chatbot")
-        logger.info(f"Using model: {settings.gemini_model}")
         
         # Handle database initialization
         if args.init_db:
@@ -88,35 +68,28 @@ def main():
                 print("❌ Database connection failed. Check your configuration.\n")
                 return 1
         
-        # Test database connection before starting
-        if not test_connection():
-            print("\n❌ Failed to connect to database!")
-            print("Please check your database configuration in .env")
-            print("\nYou can:")
-            print("  1. Run 'python main.py --init-db' to initialize the database")
-            print("  2. Run 'python main.py --test-db' to test the connection\n")
-            return 1
+        # Default: Run the backend server
+        print("\n" + "="*60)
+        print("🤖 AI Agent Chatbot - FastAPI Backend")
+        print("="*60)
+        print(f"\nUsing model: {settings.gemini_model}")
+        print("\nStarting backend server on http://localhost:8000")
+        print("\nTo use the chatbot:")
+        print("  1. Backend: python main.py (this terminal)")
+        print("  2. Frontend: cd frontend && npm run dev (new terminal)")
+        print("  3. Open browser: http://localhost:5173")
+        print("\n" + "="*60 + "\n")
         
-        print("\n✅ Database connection successful!")
+        # Import and run backend
+        from backend import app
+        import uvicorn
         
-        # Determine mode
-        mode = args.mode or settings.app_mode
-        
-        # Launch appropriate interface
-        if mode == "web":
-            logger.info("Launching web interface")
-            print("\n🚀 Launching Gradio web interface...")
-            print("The interface will open in your browser shortly.\n")
-            launch_web_interface(share=args.share)
-        
-        elif mode == "cli":
-            logger.info("Launching CLI interface")
-            launch_cli_interface()
-        
-        else:
-            print(f"\n❌ Invalid mode: {mode}")
-            print("Please set APP_MODE in .env to 'web' or 'cli'\n")
-            return 1
+        uvicorn.run(
+            app,
+            host="0.0.0.0",
+            port=8000,
+            log_level=log_level.lower()
+        )
         
         return 0
         

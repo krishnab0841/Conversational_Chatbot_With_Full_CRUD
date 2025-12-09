@@ -71,14 +71,22 @@ class ChatbotAgent:
         workflow.add_node("collect_data", self.collect_data_node)
         workflow.add_node("execute_operation", self.execute_operation_node)
         
-        # Set entry point
+        # Set entry point with conditional routing
         workflow.set_entry_point("classify_intent")
         
-        # Add conditional edges
+        # Route based on whether we're already collecting data
+        def route_from_classify(state):
+            # If we're already collecting data, skip to collect_data
+            if state.get("collecting_field"):
+                return "collect_data"
+            return state.get("current_intent", "help")
+        
+        # Add conditional edges from classify_intent
         workflow.add_conditional_edges(
             "classify_intent",
-            self.route_intent,
+            route_from_classify,
             {
+                "collect_data": "collect_data",
                 "create": "handle_create",
                 "read": "handle_read",
                 "update": "handle_update",
@@ -88,34 +96,34 @@ class ChatbotAgent:
             }
         )
         
-        # Create flow edges
-        workflow.add_conditional_edges(
-            "handle_create",
-            lambda state: "collect_data" if not state.get("operation_complete") else "execute_operation"
-        )
+        # Create flow - go to END after asking first question
+        workflow.add_edge("handle_create", END)
         
+        # Read flow
         workflow.add_conditional_edges(
             "handle_read",
-            lambda state: "execute_operation" if state.get("user_email") else "collect_data"
+            lambda state: "execute_operation" if state.get("user_email") else END
         )
         
-        workflow.add_conditional_edges(
-            "handle_update",
-            lambda state: "collect_data" if not state.get("operation_complete") else "execute_operation"
-        )
+        # Update flow
+        workflow.add_edge("handle_update", END)
         
+        # Delete flow
         workflow.add_conditional_edges(
             "handle_delete",
-            lambda state: "execute_operation" if state.get("user_email") else "collect_data"
+            lambda state: "execute_operation" if state.get("user_email") else END
         )
         
+        # Help always ends
         workflow.add_edge("handle_help", END)
         
+        # Data collection flow
         workflow.add_conditional_edges(
             "collect_data",
-            lambda state: "execute_operation" if state.get("operation_complete") else "collect_data"
+            lambda state: "execute_operation" if state.get("operation_complete") else END
         )
         
+        # Execute operation always ends
         workflow.add_edge("execute_operation", END)
         
         return workflow.compile()
@@ -550,8 +558,8 @@ If you need to register again, just let me know!"""
             "content": message
         })
         
-        # Run the graph
-        result_state = self.graph.invoke(state)
+        # Run the graph with recursion limit
+        result_state = self.graph.invoke(state, {"recursion_limit": 50})
         
         # Get assistant's response (last message)
         if result_state["messages"] and result_state["messages"][-1]["role"] == "assistant":
